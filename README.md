@@ -23,6 +23,67 @@ When the app is first run it will gives you two option "start fragment flow" and
 
 The following diagram shows the events which occur and how data flows from the relevant objects to achieve this.
 
+<table>
+  <tr>
+   <td><strong>Step</strong>
+   </td>
+   <td><strong>Description</strong>
+   </td>
+   <td><strong>Code </strong>
+   </td>
+  </tr>
+  <tr>
+   <td>1
+   </td>
+   <td>On app startup, once the user clicked on the "start compose flow" button, then the <code>ProductViewModel</code> calls <code>ProductDataRepository</code> to obtain a stream of product resources. Items will be emitted into this stream when repository emit an item. While waiting, the feed state is set to <code>Loading</code>.
+   </td>
+   <td>Search for usages of <code>ProductUiState.Loading</code>
+   </td>
+  </tr>
+  <tr>
+   <td>2
+   </td>
+   <td>Whenever user clicked on a product then that product is stored in Proto DataStore.
+   </td>
+   <td><code>AppPreferencesDataSource.productDataStream</code>
+   </td>
+  </tr>
+  <tr>
+   <td>3
+   </td>
+   <td><code>RetrofitNetwork</code> calls the REST API on the remote server.
+   </td>
+   <td><code>RetrofitNetwork.getProducts</code>
+   </td>
+  </tr>
+  <tr>
+   <td>4
+   </td>
+   <td><code>RetrofitNetwork</code> receives the network response from the remote server.
+   </td>
+   <td><code>RetrofitNiaNetwork.getProducts</code>
+   </td>
+  </tr>
+   <tr>
+   <td>5
+   </td>
+   <td><code>OnlineProductRepository</code> acts as an intermediate operator on this stream, transforming the incoming <code>NetworkProduct</code> to the public <code>Product</code> model which is consumed by other layers.
+   </td>
+   <td><code>OnlineProductRepository.getProductStream</code>
+   </td>
+  <tr>
+   <td>6
+   </td>
+   <td>When <code>ProductViewModel</code> receives the product resources it updates the product state to <code>Success</code>.
+
+  <code>ProductScreen</code> then uses the product resources in the state to render the screen.
+   </td>
+   <td>Search for instances of <code>ProductUiState.Success</code>
+   </td>
+  </tr>
+</table>
+
+
 
 # Modularization
 
@@ -59,8 +120,7 @@ This app contains the following types of modules:
    </td>
   </tr>
   <tr>
-   <td><code>feature:Product,</code><br>
-   ...
+   <td><code>feature:Product</code><br>
    </td>
    <td>Functionality associated with a specific feature or user journey. Typically contains UI components and ViewModels which read data from other modules.<br>
    Examples include:<br>
